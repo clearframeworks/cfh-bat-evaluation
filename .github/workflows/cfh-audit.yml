@@ -1,6 +1,8 @@
 name: CFH source audit
 on:
   workflow_dispatch:
+  push:
+    branches: [cfh-audit]
 permissions:
   contents: read
 jobs:
