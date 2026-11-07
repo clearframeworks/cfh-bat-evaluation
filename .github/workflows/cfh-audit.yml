@@ -15,7 +15,9 @@ jobs:
           ref: c231941daa363e67657216922135e3cc2d5a4f93
           persist-credentials: false
       - name: Patch faster-hex lockfile
-        run: cargo update -p faster-hex --precise 0.10.1
+        run: |
+          cargo update -p autocfg --precise 1.5.1
+          cargo update -p faster-hex --precise 0.10.1
       - name: Identify Windows dependency paths
         run: |
           for package in bincode faster-hex proc-macro-error2 unsafe-libyaml yaml-rust; do
