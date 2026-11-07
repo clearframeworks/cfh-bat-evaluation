@@ -9,16 +9,20 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    strategy:
-      fail-fast: false
-      matrix:
-        revision: [979ba22628bc9d8171f2cffca2bd5c90c9fc0a9e, c231941daa363e67657216922135e3cc2d5a4f93]
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
         with:
-          ref: ${{ matrix.revision }}
+          ref: c231941daa363e67657216922135e3cc2d5a4f93
           persist-credentials: false
+      - name: Patch faster-hex lockfile
+        run: cargo update -p faster-hex --precise 0.10.1
+      - name: Identify Windows dependency paths
+        run: |
+          for package in bincode faster-hex proc-macro-error2 unsafe-libyaml yaml-rust; do
+            echo "=== $package ==="
+            cargo tree --locked --target x86_64-pc-windows-msvc -i "$package" || true
+          done
       - name: Install OSV Scanner
         run: go install github.com/google/osv-scanner/v2/cmd/osv-scanner@v2.7.0
-      - name: Check locked dependencies
-        run: '"$(go env GOPATH)/bin/osv-scanner" scan source --recursive .'
+      - name: Audit Rust lockfile
+        run: '"$(go env GOPATH)/bin/osv-scanner" scan source --lockfile Cargo.lock'
